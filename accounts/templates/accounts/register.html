@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}Inscription - CampusClubs{% endblock %}
+
+{% block content %}
+<div class="container animate-fade">
+    <div style="max-width: 700px; margin: 3rem auto;">
+        <div class="glass-card" style="padding: 3rem;">
+            <div style="text-align: center; margin-bottom: 2.5rem;">
+                <div style="width: 80px; height: 80px; background: var(--emsi-light); border-radius: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                    <i class="fas fa-user-plus" style="font-size: 2rem; color: var(--emsi-green);"></i>
+                </div>
+                <h2 style="font-size: 2.2rem; margin-bottom: 0.5rem;">Rejoignez <span class="gradient-text">la communauté</span></h2>
+                <p style="color: var(--text-muted);">Créez votre compte pour explorer la vie associative.</p>
+            </div>
+            
+            <form method="post">
+                {% csrf_token %}
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    {% for field in form %}
+                        <div class="form-group" style="{% if field.name in 'filiere annee age' %}display: none;{% endif %} {% if field.name == 'username' or field.name == 'email' or field.name == 'role' %}grid-column: span 2;{% endif %}" id="group_{{ field.name }}">
+                            <label for="{{ field.id_for_label }}">
+                                {{ field.label }}
+                            </label>
+                            {% if field.name == 'role' %}
+                                <div class="select-wrapper">
+                                    {{ field }}
+                                </div>
+                            {% else %}
+                                {{ field }}
+                            {% endif %}
+                            
+                            {% if field.help_text %}
+                                <small style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-top: 0.4rem;">{{ field.help_text }}</small>
+                            {% endif %}
+                            {% for error in field.errors %}
+                                <small style="color: #dc2626; display: block; margin-top: 0.4rem; font-weight: 600;">{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <button type="submit" class="btn-emsi" style="width: 100%; padding: 1.1rem; font-size: 1.1rem; margin-top: 2rem;">
+                    Créer mon compte <i class="fas fa-check-circle" style="margin-left: 10px;"></i>
+                </button>
+            </form>
+            
+            <div style="text-align: center; margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid #edf2f7;">
+                <p style="color: var(--text-muted); font-size: 0.95rem;">
+                    Déjà membre ? <a href="{% url 'login' %}" style="color: var(--emsi-green); font-weight: 700; text-decoration: none;">Se connecter</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Custom style for register fields that are standard Django fields */
+    input[type="text"], input[type="email"], input[type="password"], input[type="number"], select {
+        width: 100%;
+        padding: 1.1rem 1.4rem;
+        border-radius: 14px;
+        border: 2px solid #e2e8f0;
+        background: white;
+        font-family: inherit;
+        font-size: 1rem;
+        transition: all 0.3s;
+    }
+    input:focus, select:focus {
+        outline: none;
+        border-color: var(--emsi-green);
+        box-shadow: 0 0 0 4px rgba(0, 138, 78, 0.1);
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const roleSelect = document.getElementById("id_role");
+        const filiereGroup = document.getElementById("group_filiere");
+        const anneeGroup = document.getElementById("group_annee");
+        const ageGroup = document.getElementById("group_age");
+        
+        function toggleStudentFields() {
+            if (roleSelect.value === 'ETUDIANT') {
+                filiereGroup.style.display = 'block';
+                anneeGroup.style.display = 'block';
+                ageGroup.style.display = 'block';
+            } else {
+                filiereGroup.style.display = 'none';
+                anneeGroup.style.display = 'none';
+                ageGroup.style.display = 'none';
+            }
+        }
+        
+        if (roleSelect) {
+            toggleStudentFields();
+            roleSelect.addEventListener("change", toggleStudentFields);
+        }
+    });
+</script>
+{% endblock %}
+

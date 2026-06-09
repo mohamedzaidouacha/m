@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestion - {{ club.nom }}{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h2>Demandes d'adhésion : {{ club.nom }}</h2>
+        <a href="{% url 'dashboard' %}" class="btn-secondary">Retour au Dashboard</a>
+    </div>
+    
+    {% if adhesions %}
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Étudiant</th>
+                        <th>Filière & Année</th>
+                        <th>Âge</th>
+                        <th>Date demande</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for adhesion in adhesions %}
+                    <tr>
+                        <td style="font-weight: 600;">{{ adhesion.etudiant.username }}</td>
+                        <td>{{ adhesion.etudiant.get_filiere_display_fr }} ({{ adhesion.etudiant.annee }}e A)</td>
+                        <td>{{ adhesion.etudiant.age|default:"-" }} ans</td>
+                        <td>{{ adhesion.date_demande|date:"d M Y" }}</td>
+                        <td>
+                            {% if adhesion.statut == 'ATTENTE' %}
+                                <span class="badge badge-attente">En attente</span>
+                            {% elif adhesion.statut == 'ACCEPTEE' %}
+                                <span class="badge badge-acceptee">Acceptée</span>
+                            {% else %}
+                                <span class="badge badge-refusee">Refusée</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if adhesion.statut == 'ATTENTE' %}
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <form action="{% url 'approve_adhesion' adhesion.id %}" method="post" style="display: inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn-primary" style="background: var(--success-color); padding: 0.3rem 0.8rem; font-size: 0.8rem;">Accepter</button>
+                                    </form>
+                                    <form action="{% url 'reject_adhesion' adhesion.id %}" method="post" style="display: inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn-primary" style="background: var(--danger-color); padding: 0.3rem 0.8rem; font-size: 0.8rem;">Refuser</button>
+                                    </form>
+                                </div>
+                            {% else %}
+                                <span style="color: var(--text-secondary); font-size: 0.85rem;">Traitée</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p style="color: var(--text-secondary); text-align: center; padding: 2rem;">Aucune demande d'adhésion pour le moment.</p>
+    {% endif %}
+</div>
+{% endblock %}
+

@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if is_edit %}Modifier l'événement{% else %}Créer un événement{% endif %} - CampusClubs{% endblock %}
+
+{% block content %}
+<div class="glass-card" style="max-width: 700px; margin: 0 auto;">
+    <h2 style="margin-bottom: 2rem; color: var(--accent-color);">{% if is_edit %}Modifier l'événement{% else %}Créer un nouvel événement{% endif %}</h2>
+    
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="club">Club Organisateur</label>
+            <select name="club" id="club" class="form-control" required>
+                {% for club in clubs %}
+                    <option value="{{ club.id }}" {% if is_edit and event.club.id == club.id %}selected{% endif %}>{{ club.nom }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="grid-2">
+            <div class="form-group">
+                <label for="{{ form.titre.id_for_label }}">Titre de l'événement</label>
+                {{ form.titre }}
+                {% for error in form.titre.errors %}<small style="color: var(--danger-color);">{{ error }}</small>{% endfor %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.date.id_for_label }}">Date</label>
+                {{ form.date }}
+                {% for error in form.date.errors %}<small style="color: var(--danger-color);">{{ error }}</small>{% endfor %}
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.lieu.id_for_label }}">Lieu</label>
+            {{ form.lieu }}
+            {% for error in form.lieu.errors %}<small style="color: var(--danger-color);">{{ error }}</small>{% endfor %}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.description.id_for_label }}">Description</label>
+            {{ form.description }}
+            {% for error in form.description.errors %}<small style="color: var(--danger-color);">{{ error }}</small>{% endfor %}
+        </div>
+
+        <div class="grid-2">
+            <div class="form-group">
+                <label for="{{ form.image.id_for_label }}">Image principale</label>
+                {{ form.image }}
+                {% for error in form.image.errors %}<small style="color: var(--danger-color);">{{ error }}</small>{% endfor %}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.galerie.id_for_label }}">Galerie photos</label>
+                {{ form.galerie }}
+                {% if form.galerie.help_text %}<small style="display: block; color: var(--text-muted);">{{ form.galerie.help_text }}</small>{% endif %}
+                {% for error in form.galerie.errors %}<small style="color: var(--danger-color);">{{ error }}</small>{% endfor %}
+            </div>
+        </div>
+        
+        <hr style="border: 0; border-top: 1px solid var(--glass-border); margin: 2rem 0;">
+        <h4 style="margin-bottom: 1rem; color: var(--warning-color);">Conditions (optionnel)</h4>
+
+        <div class="grid-2">
+            <div class="form-group">
+                <label for="{{ form.cond_filiere.id_for_label }}">Filière requise</label>
+                {{ form.cond_filiere }}
+            </div>
+            <div></div> <!-- empty grid item -->
+            
+            <div class="form-group">
+                <label for="{{ form.cond_annee_min.id_for_label }}">Année minimum</label>
+                {{ form.cond_annee_min }}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.cond_annee_max.id_for_label }}">Année maximum</label>
+                {{ form.cond_annee_max }}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.cond_age_min.id_for_label }}">Âge minimum</label>
+                {{ form.cond_age_min }}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.cond_age_max.id_for_label }}">Âge maximum</label>
+                {{ form.cond_age_max }}
+            </div>
+        </div>
+        
+        <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem; font-size: 1.1rem; padding: 1rem;">{% if is_edit %}Enregistrer les modifications{% else %}Créer l'événement{% endif %}</button>
+    </form>
+</div>
+{% endblock %}
+

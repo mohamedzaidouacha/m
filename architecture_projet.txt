@@ -1,0 +1,105 @@
+===================================================================
+        ARCHITECTURE DU PROJET (Django) + تقسيم الخدمة ف Groupe
+===================================================================
+
+هاد الملف الهدف ديالو يوضح شنو كاين ف كل Application باش الخدمة ف groupe تكون واضحة
+w كل واحد يشد part ديالو بلا ما يخلّط ف ملفات الآخرين.
+
+0) فين كاينين les apps (Map سريع)
+-------------------------------------------------------------------
+- accueil        : prjy/accueil/
+- accounts       : prjy/accounts/
+- clubs          : prjy/clubs/
+- events         : prjy/events/
+- core           : prjy/core/
+- gestion_club   : prjy/gestion_club/  (settings/urls ديال المشروع كامل)
+- shared templates: prjy/templates/base.html
+- static files   : prjy/static/
+
+1) فين كاين manage.py ؟
+-------------------------------------------------------------------
+- manage.py كاين داخل: prjy/manage.py
+- يعني باش تشغل السيرفر: 
+    cd prjy
+    py manage.py runserver
+- db.sqlite3: قاعدة البيانات (SQLite) ديال Django
+
+
+2) config globale: application "gestion_club"
+-------------------------------------------------------------------
+- prjy/gestion_club/settings.py
+  - INSTALLED_APPS: لائحة التطبيقات (accueil, core, accounts, clubs, events)
+  - STATIC/MEDIA settings
+  - AUTH_USER_MODEL
+- prjy/gestion_club/urls.py
+  - routes الرئيسية: include ديال urls ديال كل app
+  - serve ديال MEDIA ف DEBUG
+
+
+3) Application: accueil (Pages publiques)
+-------------------------------------------------------------------
+- rôle: الصفحة الرئيسية + about us
+- files:
+  - prjy/accueil/views.py
+  - prjy/accueil/urls.py
+  - prjy/accueil/templates/accueil/home.html
+  - prjy/accueil/templates/accueil/aboutus.html
+
+
+4) Application: accounts (Authentification + Users)
+-------------------------------------------------------------------
+- rôle: login/register/logout + Utilisateur model + middleware
+- files:
+  - prjy/accounts/models.py
+  - prjy/accounts/views.py
+  - prjy/accounts/urls.py
+  - prjy/accounts/templates/accounts/login.html
+  - prjy/accounts/templates/accounts/register.html
+
+
+5) Application: clubs (Gestion des Clubs + Adhésions)
+-------------------------------------------------------------------
+- rôle: CRUD ديال clubs + validation + adhésions + members
+- files:
+  - prjy/clubs/models.py (Club, Adhesion, ...)
+  - prjy/clubs/views.py
+  - prjy/clubs/urls.py
+  - prjy/clubs/templates/clubs/*.html (صفحات الواجهة ديال clubs)
+
+
+6) Application: events (Gestion des Événements + Participations)
+-------------------------------------------------------------------
+- rôle: CRUD ديال events + participants + صور ديال event
+- files:
+  - prjy/events/models.py (Evenement, Participation, ...)
+  - prjy/events/views.py
+  - prjy/events/urls.py
+  - prjy/events/templates/events/*.html
+
+
+7) Application: core (Dashboard + Admin)
+-------------------------------------------------------------------
+- rôle: dashboard حسب role + admin users ban/unban + gestion ديال fichiers (uploads)
+- files:
+  - prjy/core/views.py
+  - prjy/core/urls.py
+  - prjy/core/templates/core/dashboard.html
+  - prjy/core/templates/core/admin_users.html
+  - prjy/core/templates/core/index.html
+
+
+8) Static & Templates (مشتركة)
+-------------------------------------------------------------------
+- Static (CSS/Images):
+  - prjy/static/css/style.css
+  - prjy/static/images/*
+- Templates المشتركة:
+  - prjy/templates/base.html
+
+
+تقسيم الخدمة ف groupe (اقتراح)
+-------------------------------------------------------------------
+- واحد يشد accounts: auth + users + permissions
+- واحد يشد clubs: club CRUD + adhésions + templates ديال clubs
+- واحد يشد events: events CRUD + participations + templates ديال events
+- واحد يشد core/accueil: home/about + dashboard + admin + gestion fichiers

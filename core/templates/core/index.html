@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Accueil - CampusClubs{% endblock %}
+
+{% block content %}
+<div class="emsi-hero-container">
+    <div class="emsi-hero-image-wrapper">
+        <div class="emsi-hero-overlay"></div>
+        <img src="{% static 'images/ecole.jpeg' %}" alt="Ecole" class="emsi-hero-img">
+    </div>
+    <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-top: 2rem;">
+        <a href="{% url 'club_list' %}" class="btn-emsi" style="padding: 0.9rem 1.7rem;">
+            <i class="fas fa-users" style="margin-right: 10px;"></i> Rejoindre un club
+        </a>
+        <a href="{% url 'event_list' %}" class="btn-emsi" style="padding: 0.9rem 1.7rem; background: white; color: var(--emsi-green) !important; border: 2px solid var(--emsi-green); box-shadow: none;">
+            <i class="fas fa-calendar-check" style="margin-right: 10px;"></i> Rejoindre un événement
+        </a>
+    </div>
+</div>
+
+<div class="container animate-fade">
+    <div style="text-align: center; margin-bottom: 4rem;">
+        <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">Votre vie associative <span class="gradient-text">à l'EMSI</span></h2>
+        <p style="color: var(--text-muted); max-width: 600px; margin: 0 auto;">Rejoignez des passionnés, créez des projets et vivez l'inoubliable sur votre campus.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+        <div class="card-pro">
+            <div style="width: 60px; height: 60px; background: var(--emsi-light); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                <i class="fas fa-users" style="color: var(--emsi-green); font-size: 1.5rem;"></i>
+            </div>
+            <h3>Découverte</h3>
+            <p style="color: var(--text-muted); margin-top: 1rem;">Trouvez les clubs qui correspondent parfaitement à vos intérêts et vos compétences.</p>
+        </div>
+        <div class="card-pro">
+            <div style="width: 60px; height: 60px; background: var(--emsi-light); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                <i class="fas fa-calendar-alt" style="color: var(--emsi-green); font-size: 1.5rem;"></i>
+            </div>
+            <h3>Événements</h3>
+            <p style="color: var(--text-muted); margin-top: 1rem;">Inscrivez-vous aux événements en un clic et ne ratez plus aucun moment fort.</p>
+        </div>
+        <div class="card-pro">
+            <div style="width: 60px; height: 60px; background: var(--emsi-light); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                <i class="fas fa-star" style="color: var(--emsi-green); font-size: 1.5rem;"></i>
+            </div>
+            <h3>Impact</h3>
+            <p style="color: var(--text-muted); margin-top: 1rem;">Créez des projets qui comptent et développez votre réseau dès aujourd'hui.</p>
+        </div>
+    </div>
+
+    <div style="margin-top: 5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: end; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem;">
+            <div>
+                <h2 style="font-size: 2rem; margin-bottom: 0.4rem;">Clubs à rejoindre</h2>
+                <p style="color: var(--text-muted);">Choisissez un club validé et lancez votre candidature.</p>
+            </div>
+            <a href="{% url 'club_list' %}" class="btn-emsi">Voir tous les clubs</a>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.75rem;">
+            {% for club in clubs %}
+                <div class="card-pro">
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                        {% if club.logo %}
+                            <img src="{{ club.logo.url }}" alt="{{ club.nom }}" style="width: 58px; height: 58px; border-radius: 16px; object-fit: cover; border: 1px solid #dbe7df;">
+                        {% else %}
+                            <div style="width: 58px; height: 58px; border-radius: 16px; background: var(--emsi-light); display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-users" style="color: var(--emsi-green);"></i>
+                            </div>
+                        {% endif %}
+                        <div>
+                            <h3 style="margin-bottom: 0.2rem;">{{ club.nom }}</h3>
+                            <p style="color: var(--text-muted); font-size: 0.9rem;">Responsable: {{ club.responsable.username }}</p>
+                        </div>
+                    </div>
+                    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">{{ club.description|truncatewords:18 }}</p>
+                    <a href="{% url 'club_detail' club.id %}" class="btn-emsi" style="display: inline-flex;">Rejoindre le club</a>
+                </div>
+            {% empty %}
+                <div class="glass-card" style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
+                    <p style="color: var(--text-muted);">Aucun club validé pour le moment.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div style="margin-top: 5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: end; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem;">
+            <div>
+                <h2 style="font-size: 2rem; margin-bottom: 0.4rem;">Événements à venir</h2>
+                <p style="color: var(--text-muted);">Réservez votre place dans les prochains événements des clubs.</p>
+            </div>
+            <a href="{% url 'event_list' %}" class="btn-emsi">Voir tous les événements</a>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.75rem;">
+            {% for event in evenements %}
+                <div class="card-pro">
+                    {% if event.image %}
+                        <img src="{{ event.image.url }}" alt="{{ event.titre }}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 18px; margin-bottom: 1rem;">
+                    {% endif %}
+                    <h3 style="margin-bottom: 0.75rem;">{{ event.titre }}</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 0.35rem;"><i class="fas fa-calendar-day" style="color: var(--emsi-green); margin-right: 8px;"></i>{{ event.date|date:"d M Y" }}</p>
+                    <p style="color: var(--text-muted); margin-bottom: 0.35rem;"><i class="fas fa-location-dot" style="color: var(--emsi-green); margin-right: 8px;"></i>{{ event.lieu }}</p>
+                    <p style="color: var(--text-muted); margin: 1rem 0 1.5rem;">{{ event.description|truncatewords:18 }}</p>
+                    <a href="{% url 'event_detail' event.id %}" class="btn-emsi" style="display: inline-flex;">Rejoindre l'événement</a>
+                </div>
+            {% empty %}
+                <div class="glass-card" style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
+                    <p style="color: var(--text-muted);">Aucun événement à venir pour le moment.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+

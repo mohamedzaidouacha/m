@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Membres - {{ club.nom }}{% endblock %}
+
+{% block content %}
+<div class="container animate-fade">
+    <div class="glass-card" style="margin-top: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem;">
+            <div>
+                <h2 style="margin-bottom: 0.35rem;">Membres de {{ club.nom }}</h2>
+                <p style="color: var(--text-muted); margin: 0;">Liste des étudiants acceptés dans le club.</p>
+            </div>
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                <a href="{% url 'manage_adhesions' club.id %}" class="btn-outline">Demandes</a>
+                <a href="{% url 'club_detail' club.id %}" class="btn-emsi">Retour au club</a>
+            </div>
+        </div>
+
+        {% if members %}
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Étudiant</th>
+                            <th>Filière</th>
+                            <th>Année</th>
+                            <th>Âge</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for adhesion in members %}
+                        <tr>
+                            <td style="font-weight: 700;">{{ adhesion.etudiant.username }}</td>
+                            <td>{{ adhesion.etudiant.get_filiere_display_fr }}</td>
+                            <td>{{ adhesion.etudiant.get_annee_display_fr }}</td>
+                            <td>{{ adhesion.etudiant.age|default:"-" }}</td>
+                            <td>
+                                <form action="{% url 'remove_member' adhesion.id %}" method="post" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-outline" style="border-color: #dc2626; color: #dc2626; padding: 0.45rem 1rem;" onclick="return confirm('Retirer ce membre du club ?');">
+                                        <i class="fas fa-user-minus" style="margin-right: 8px;"></i> Retirer
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 3rem; background: #f8fafc; border-radius: 16px;">
+                <p style="color: var(--text-muted); margin: 0;">Aucun membre accepté pour le moment.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

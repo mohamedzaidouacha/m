@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Événements - CampusClubs{% endblock %}
+
+{% block content %}
+<div class="animate-fade" style="margin-bottom: 3rem; text-align: center;">
+    <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Événements à venir</h1>
+    <p style="color: var(--text-secondary); font-size: 1.1rem;">Ne manquez pas les activités organisées par nos clubs dynamiques.</p>
+</div>
+
+<div class="grid-2 animate-fade" style="animation-delay: 0.2s;">
+    {% for event in evenements %}
+    <div class="glass-card" style="display: flex; flex-direction: column;">
+        {% if event.image %}
+        <img src="{{ event.image.url }}" alt="{{ event.titre }}" style="width: 100%; height: 210px; object-fit: cover; border-radius: 18px; margin-bottom: 1.5rem;">
+        {% endif %}
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+            <h3 style="color: var(--text-primary); font-size: 1.5rem;">{{ event.titre }}</h3>
+            <div style="background: rgba(43, 182, 115, 0.1); color: var(--accent-color); padding: 0.5rem; border-radius: 10px;">
+                <i class="fas fa-calendar-day"></i>
+            </div>
+        </div>
+        
+        <div style="margin-bottom: 1.5rem;">
+            <p style="margin: 0.4rem 0; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-clock" style="color: var(--accent-color); width: 16px;"></i> {{ event.date|date:"d M Y" }}
+            </p>
+            <p style="margin: 0.4rem 0; color: var(--text-secondary); display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-map-marker-alt" style="color: #ef4444; width: 16px;"></i> {{ event.lieu }}
+            </p>
+        </div>
+
+        <p style="margin-bottom: 1.5rem; color: var(--text-secondary); line-height: 1.6; font-size: 1rem; flex-grow: 1;">
+            {{ event.description|truncatewords:15 }}
+        </p>
+        
+        <div style="padding-top: 1.5rem; border-top: 1px solid #f1f5f9; margin-bottom: 1.5rem;">
+            <p style="font-size: 0.9rem; color: var(--text-secondary);">
+                <i class="fas fa-user-tie" style="margin-right: 5px;"></i> Organisé par : <strong style="color: var(--accent-color);">{{ event.club.nom }}</strong>
+            </p>
+        </div>
+
+        <a href="{% url 'event_detail' event.id %}" class="btn-primary" style="width: 100%; border-radius: 12px; font-weight: 700;">
+            Rejoindre l'événement <i class="fas fa-ticket-alt" style="margin-left: 10px; font-size: 0.8rem;"></i>
+        </a>
+    </div>
+    {% empty %}
+    <div class="glass-card" style="grid-column: 1 / -1; text-align: center; padding: 4rem;">
+        <i class="fas fa-calendar-times" style="font-size: 3rem; color: #cbd5e1; margin-bottom: 1.5rem;"></i>
+        <h3 style="color: #64748b;">Aucun événement prévu</h3>
+        <p style="color: var(--text-secondary); margin-top: 0.5rem;">Revenez bientôt pour découvrir de nouvelles activités !</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+

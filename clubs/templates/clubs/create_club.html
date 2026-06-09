@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if is_edit %}Modifier le club{% else %}Créer un nouveau club{% endif %} - CampusClubs{% endblock %}
+
+{% block content %}
+<div class="glass-card" style="max-width: 600px; margin: 0 auto;">
+    <h2 style="margin-bottom: 2rem; color: var(--accent-color); text-align: center;">{% if is_edit %}Modifier le club{% else %}Créer un nouveau club{% endif %}</h2>
+    
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div style="margin-bottom: 1.5rem;">
+            <h3 style="margin-bottom: 1rem; font-size: 1.2rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem;">Informations générales</h3>
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Nom du club</label>
+                {{ form.nom }}
+                {% if form.nom.errors %}
+                    <div style="color: var(--danger-color); font-size: 0.85rem; margin-top: 0.25rem;">{{ form.nom.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Description</label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                    <div style="color: var(--danger-color); font-size: 0.85rem; margin-top: 0.25rem;">{{ form.description.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Logo du club</label>
+                {{ form.logo }}
+                {% if form.logo.errors %}
+                    <div style="color: var(--danger-color); font-size: 0.85rem; margin-top: 0.25rem;">{{ form.logo.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+            <h3 style="margin-bottom: 1rem; font-size: 1.2rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem;">Conditions d'adhésion (Optionnel)</h3>
+            
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Filière requise</label>
+                {{ form.cond_filiere }}
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Année minimale</label>
+                    {{ form.cond_annee_min }}
+                </div>
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Année maximale</label>
+                    {{ form.cond_annee_max }}
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Âge minimum</label>
+                    {{ form.cond_age_min }}
+                </div>
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Âge maximum</label>
+                    {{ form.cond_age_max }}
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn-primary" style="width: 100%; font-size: 1.1rem; padding: 1rem; margin-top: 1rem;">{% if is_edit %}Enregistrer les modifications{% else %}Soumettre la création{% endif %}</button>
+        <p style="text-align: center; color: var(--text-secondary); margin-top: 1rem; font-size: 0.9rem;">
+            {% if is_edit %}
+                Mettez à jour les informations et les conditions d'accès de votre club.
+            {% else %}
+                Votre club sera soumis à l'administration pour validation avant d'être publié.
+            {% endif %}
+        </p>
+    </form>
+</div>
+{% endblock %}
+

@@ -1,0 +1,393 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - CampusClubs{% endblock %}
+
+{% block content %}
+<div class="container animate-fade">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem; flex-wrap: wrap; gap: 1.5rem;">
+        <div>
+            <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Tableau de <span class="gradient-text">bord</span></h1>
+            <p style="color: var(--text-muted);">Bienvenue, <strong style="color: var(--emsi-green);">{{ user.username }}</strong> — <span class="badge badge-info">{{ user.get_role_display }}</span></p>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+            {% if user.role == 'RESPONSABLE' %}
+                <a href="{% url 'create_club' %}" class="btn-emsi">
+                    <i class="fas fa-plus-circle" style="margin-right: 8px;"></i> Créer un club
+                </a>
+                <a href="{% url 'create_event' %}" class="btn-outline">
+                    <i class="fas fa-calendar-plus" style="margin-right: 8px;"></i> Créer un événement
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if user.role == 'ADMIN' %}
+        <div class="grid-auto" style="margin-bottom: 3rem;">
+            <div class="card-pro">
+                <h3 style="font-size: 2rem; margin-bottom: 0.35rem;">{{ users_count }}</h3>
+                <p style="color: var(--text-muted);">Utilisateurs au total</p>
+            </div>
+            <div class="card-pro">
+                <h3 style="font-size: 2rem; margin-bottom: 0.35rem;">{{ banned_count }}</h3>
+                <p style="color: var(--text-muted);">Comptes bannis</p>
+            </div>
+            <div class="card-pro">
+                <h3 style="font-size: 2rem; margin-bottom: 0.35rem;">{{ clubs_attente|length }}</h3>
+                <p style="color: var(--text-muted);">Clubs en attente</p>
+            </div>
+        </div>
+
+        <div class="glass-card" style="margin-bottom: 3rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+                <h3 style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fas fa-users-cog" style="color: var(--emsi-green);"></i> Gestion des utilisateurs
+                </h3>
+                <a href="{% url 'admin_users' %}" class="btn-emsi">Voir tous les utilisateurs</a>
+            </div>
+            <p style="color: var(--text-muted); margin: 0;">Ban / unban des comptes étudiants et responsables depuis le panel admin.</p>
+        </div>
+
+        <div class="glass-card" style="margin-bottom: 3rem;">
+            <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 12px;">
+                <i class="fas fa-clock" style="color: #f59e0b;"></i> Clubs en attente de validation
+            </h3>
+            {% if clubs_attente %}
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nom du Club</th>
+                                <th>Responsable</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for club in clubs_attente %}
+                            <tr>
+                                <td style="font-weight: 700;">{{ club.nom }}</td>
+                                <td>{{ club.responsable.username }}</td>
+                                <td>{{ club.date_creation|date:"d M Y" }}</td>
+                                <td>
+                                    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                                        <form action="{% url 'validate_club' club.id %}" method="post" style="display: inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn-emsi" style="padding: 0.5rem 1.25rem; font-size: 0.85rem;">Valider</button>
+                                        </form>
+                                        <a href="{% url 'club_detail' club.id %}" class="btn-outline" style="padding: 0.5rem 1.25rem; font-size: 0.85rem;">Détails</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div style="text-align: center; padding: 3rem; background: #f8fafc; border-radius: 16px;">
+                    <p style="color: var(--text-muted); font-weight: 500;">Aucun club en attente de validation.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="glass-card" style="margin-bottom: 3rem;">
+            <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 12px;">
+                <i class="fas fa-globe" style="color: var(--emsi-green);"></i> Tous les clubs
+            </h3>
+            {% if tous_clubs %}
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Club</th>
+                                <th>Responsable</th>
+                                <th>Membres</th>
+                                <th>Demandes</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for club in tous_clubs %}
+                            <tr>
+                                <td><a href="{% url 'club_detail' club.id %}" style="font-weight: 700; color: inherit; text-decoration: none;">{{ club.nom }}</a></td>
+                                <td>{{ club.responsable.username }}</td>
+                                <td>{{ club.accepted_members_count }}</td>
+                                <td>{{ club.pending_requests_count }}</td>
+                                <td>
+                                    {% if club.est_valide %}
+                                        <span class="badge badge-acceptee">VALIDÉ</span>
+                                    {% else %}
+                                        <span class="badge badge-attente">EN ATTENTE</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+
+    {% elif user.role == 'RESPONSABLE' %}
+        <div class="glass-card" style="margin-bottom: 3rem;">
+            <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 12px;">
+                <i class="fas fa-tasks" style="color: var(--emsi-green);"></i> Clubs que je gère
+            </h3>
+            {% if clubs_geres %}
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nom du Club</th>
+                                <th>Statut</th>
+                                <th>Membres</th>
+                                <th>Demandes</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for club in clubs_geres %}
+                            <tr>
+                                <td style="font-weight: 700;">{{ club.nom }}</td>
+                                <td>
+                                    {% if club.est_valide %}
+                                        <span class="badge badge-acceptee">VALIDE</span>
+                                    {% else %}
+                                        <span class="badge badge-attente">EN ATTENTE</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ club.accepted_members_count }}</td>
+                                <td>{{ club.pending_requests_count }}</td>
+                                <td>
+                                    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                                        <a href="{% url 'edit_club' club.id %}" class="btn-outline" style="padding: 0.5rem 1.25rem; font-size: 0.85rem;">
+                                            <i class="fas fa-pen" style="margin-right: 8px;"></i> Modifier
+                                        </a>
+                                        <a href="{% url 'manage_adhesions' club.id %}" class="btn-emsi" style="padding: 0.5rem 1.25rem; font-size: 0.85rem;">
+                                            <i class="fas fa-users-cog" style="margin-right: 8px;"></i> Demandes
+                                        </a>
+                                        <a href="{% url 'club_members' club.id %}" class="btn-outline" style="padding: 0.5rem 1.25rem; font-size: 0.85rem;">
+                                            <i class="fas fa-user-group" style="margin-right: 8px;"></i> Membres
+                                        </a>
+                                        <form action="{% url 'delete_club' club.id %}" method="post" style="display: inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn-outline" style="padding: 0.5rem 1.25rem; font-size: 0.85rem; border-color: #dc2626; color: #dc2626;" onclick="return confirm('Supprimer ce club ?');">
+                                                <i class="fas fa-trash" style="margin-right: 8px;"></i> Supprimer
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div style="text-align: center; padding: 4rem; background: #f8fafc; border-radius: 20px;">
+                    <i class="fas fa-plus-circle" style="font-size: 4rem; color: #e2e8f0; margin-bottom: 1.5rem;"></i>
+                    <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 2rem;">Vous ne gérez aucun club pour le moment.</p>
+                    <a href="{% url 'create_club' %}" class="btn-emsi">Créer mon premier club</a>
+                </div>
+            {% endif %}
+        </div>
+
+        {% if evenements %}
+            <div class="glass-card" style="margin-bottom: 3rem;">
+                <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 12px;">
+                    <i class="fas fa-calendar-days" style="color: var(--emsi-green);"></i> Événements de mes clubs
+                </h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Événement</th>
+                                <th>Club</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for event in evenements %}
+                            <tr>
+                                <td><a href="{% url 'event_detail' event.id %}" style="font-weight: 700; color: inherit; text-decoration: none;">{{ event.titre }}</a></td>
+                                <td>{{ event.club.nom }}</td>
+                                <td>{{ event.date|date:"d M Y" }}</td>
+                                <td>
+                                    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                                        <a href="{% url 'event_participants' event.id %}" class="btn-emsi" style="padding: 0.5rem 1.25rem; font-size: 0.85rem;">
+                                            <i class="fas fa-user-group" style="margin-right: 8px;"></i> Participants
+                                        </a>
+                                        <a href="{% url 'edit_event' event.id %}" class="btn-outline" style="padding: 0.5rem 1.25rem; font-size: 0.85rem;">
+                                            <i class="fas fa-pen" style="margin-right: 8px;"></i> Modifier
+                                        </a>
+                                        <form action="{% url 'delete_event' event.id %}" method="post" style="display: inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn-outline" style="padding: 0.5rem 1.25rem; font-size: 0.85rem; border-color: #dc2626; color: #dc2626;" onclick="return confirm('Supprimer cet événement ?');">
+                                                <i class="fas fa-trash" style="margin-right: 8px;"></i> Supprimer
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endif %}
+
+    {% elif user.role == 'ETUDIANT' %}
+        <div class="glass-card" style="margin-bottom: 3rem;">
+            <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 12px;">
+                <i class="fas fa-id-card" style="color: var(--emsi-green);"></i> Mes Adhésions
+            </h3>
+            {% if mes_adhesions %}
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Club</th>
+                                <th>Date de demande</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for adhesion in mes_adhesions %}
+                            <tr>
+                                <td style="font-weight: 700;">{{ adhesion.club.nom }}</td>
+                                <td>{{ adhesion.date_demande|date:"d M Y" }}</td>
+                                <td>
+                                    {% if adhesion.statut == 'ACCEPTEE' %}
+                                        <span class="badge badge-acceptee">MEMBRE</span>
+                                    {% elif adhesion.statut == 'REFUSEE' %}
+                                        <span class="badge badge-refusee">REFUSÉE</span>
+                                    {% else %}
+                                        <span class="badge badge-attente">EN ATTENTE</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div style="text-align: center; padding: 4rem; background: #f8fafc; border-radius: 20px;">
+                    <i class="fas fa-search" style="font-size: 4rem; color: #e2e8f0; margin-bottom: 1.5rem;"></i>
+                    <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 2rem;">Vous n'avez pas encore de demande d'adhésion.</p>
+                    <a href="{% url 'club_list' %}" class="btn-emsi">Parcourir les clubs</a>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="glass-card">
+            <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 12px;">
+                <i class="fas fa-ticket" style="color: var(--emsi-green);"></i> Mes Participations
+            </h3>
+            {% if participations %}
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Événement</th>
+                                <th>Club</th>
+                                <th>Date</th>
+                                <th>Inscription</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for participation in participations %}
+                            <tr>
+                                <td style="font-weight: 700;">{{ participation.evenement.titre }}</td>
+                                <td>{{ participation.evenement.club.nom }}</td>
+                                <td>{{ participation.evenement.date|date:"d M Y" }}</td>
+                                <td>{{ participation.date_inscription|date:"d M Y" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div style="text-align: center; padding: 4rem; background: #f8fafc; border-radius: 20px;">
+                    <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 2rem;">Vous n'avez pas encore participé à un événement.</p>
+                    <a href="{% url 'event_list' %}" class="btn-emsi">Voir les événements</a>
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    {% if user.role == 'ADMIN' or user.role == 'RESPONSABLE' %}
+        <div class="glass-card" style="margin-top: 3rem; margin-bottom: 3rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+                <h3 style="display: flex; align-items: center; gap: 12px; margin: 0;">
+                    <i class="fas fa-folder-open" style="color: var(--emsi-green);"></i> Gestion des fichiers
+                </h3>
+                <div style="color: var(--text-muted); font-size: 0.95rem;">Max: {{ max_upload_size_mb }}MB</div>
+            </div>
+
+            <form action="{% url 'upload_managed_file' %}" method="post" enctype="multipart/form-data" style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; margin-bottom: 1.5rem;">
+                {% csrf_token %}
+                <input type="file" name="file" required style="flex: 1; min-width: 260px;">
+                <button type="submit" class="btn-emsi">
+                    <i class="fas fa-upload" style="margin-right: 8px;"></i> Upload
+                </button>
+            </form>
+
+            {% if managed_files %}
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Fichier</th>
+                                <th>Taille</th>
+                                <th>Modifié</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for f in managed_files %}
+                            <tr>
+                                <td style="font-weight: 700;">{{ f.name }}</td>
+                                <td>{{ f.size_display }}</td>
+                                <td>{{ f.modified_display }}</td>
+                                <td>
+                                    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                                        <a href="{% url 'download_managed_file' f.name %}" class="btn-outline" style="padding: 0.5rem 1.25rem; font-size: 0.85rem;">
+                                            <i class="fas fa-download" style="margin-right: 8px;"></i> Télécharger
+                                        </a>
+                                        <form action="{% url 'delete_managed_file' f.name %}" method="post" style="display: inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn-outline" style="padding: 0.5rem 1.25rem; font-size: 0.85rem; border-color: #dc2626; color: #dc2626;" onclick="return confirm('Supprimer ce fichier ?');">
+                                                <i class="fas fa-trash" style="margin-right: 8px;"></i> Supprimer
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div style="text-align: center; padding: 3rem; background: #f8fafc; border-radius: 16px;">
+                    <p style="color: var(--text-muted); font-weight: 500; margin: 0;">Ma kayn 7ta fichier f uploads daba.</p>
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <div class="glass-card" style="margin-top: 3rem; border: 1px solid #fecaca;">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+            <div>
+                <h3 style="margin-bottom: 0.5rem; color: #b91c1c;">Zone sensible</h3>
+                <p style="color: var(--text-muted); margin: 0;">Vous pouvez supprimer votre compte si vous ne souhaitez plus utiliser la plateforme.</p>
+            </div>
+            <form action="{% url 'delete_account' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn-outline" style="border-color: #dc2626; color: #dc2626;" onclick="return confirm('Supprimer votre compte ?');">
+                    <i class="fas fa-user-xmark" style="margin-right: 8px;"></i> Supprimer mon compte
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

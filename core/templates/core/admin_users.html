@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}Utilisateurs - Admin{% endblock %}
+
+{% block content %}
+<div class="container animate-fade">
+    <div class="glass-card" style="margin-top: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem;">
+            <div>
+                <h1 style="margin-bottom: 0.35rem;">Panel des utilisateurs</h1>
+                <p style="color: var(--text-muted); margin: 0;">Gestion complète des comptes étudiants et responsables.</p>
+            </div>
+            <a href="{% url 'dashboard' %}" class="btn-outline">Retour dashboard</a>
+        </div>
+
+        <div class="grid-auto" style="margin-bottom: 2rem;">
+            <div class="card-pro">
+                <h3 style="font-size: 2rem; margin-bottom: 0.35rem;">{{ users_count }}</h3>
+                <p style="color: var(--text-muted);">Total users</p>
+            </div>
+            <div class="card-pro">
+                <h3 style="font-size: 2rem; margin-bottom: 0.35rem;">{{ students_count }}</h3>
+                <p style="color: var(--text-muted);">Étudiants</p>
+            </div>
+            <div class="card-pro">
+                <h3 style="font-size: 2rem; margin-bottom: 0.35rem;">{{ responsables_count }}</h3>
+                <p style="color: var(--text-muted);">Responsables</p>
+            </div>
+            <div class="card-pro">
+                <h3 style="font-size: 2rem; margin-bottom: 0.35rem;">{{ banned_count }}</h3>
+                <p style="color: var(--text-muted);">Bannis</p>
+            </div>
+        </div>
+
+        {% if users %}
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for managed_user in users %}
+                        <tr>
+                            <td style="font-weight: 700;">{{ managed_user.username }}</td>
+                            <td>{{ managed_user.email|default:"-" }}</td>
+                            <td>{{ managed_user.get_role_display }}</td>
+                            <td>
+                                {% if managed_user.is_active %}
+                                    <span class="badge badge-acceptee">ACTIF</span>
+                                {% else %}
+                                    <span class="badge badge-refusee">BANNI</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if managed_user == user %}
+                                    <span style="color: var(--text-muted);">Compte actuel</span>
+                                {% elif managed_user.role == 'ADMIN' %}
+                                    <span style="color: var(--text-muted);">Admin protégé</span>
+                                {% elif managed_user.is_active %}
+                                    <form action="{% url 'ban_user' managed_user.id %}" method="post" style="display: inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn-outline" style="border-color: #dc2626; color: #dc2626; padding: 0.45rem 1rem;" onclick="return confirm('Bannir ce compte ?');">
+                                            <i class="fas fa-user-slash" style="margin-right: 8px;"></i> Bannir
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <form action="{% url 'unban_user' managed_user.id %}" method="post" style="display: inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn-emsi" style="padding: 0.45rem 1rem;">
+                                            <i class="fas fa-user-check" style="margin-right: 8px;"></i> Unban
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

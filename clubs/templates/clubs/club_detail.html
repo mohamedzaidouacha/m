@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ club.nom }} - CampusClubs{% endblock %}
+
+{% block content %}
+<div class="container animate-fade">
+    <div class="glass-card" style="padding: 3rem; margin-top: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 3rem; flex-wrap: wrap; gap: 2rem;">
+            <div style="display: flex; align-items: flex-start; gap: 1.5rem;">
+                {% if club.logo %}
+                    <img src="{{ club.logo.url }}" alt="{{ club.nom }}" style="width: 96px; height: 96px; border-radius: 24px; object-fit: cover; border: 1px solid #dbe7df; box-shadow: var(--shadow-sm);">
+                {% else %}
+                    <div style="width: 96px; height: 96px; border-radius: 24px; background: var(--emsi-light); display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-users" style="font-size: 2rem; color: var(--emsi-green);"></i>
+                    </div>
+                {% endif %}
+                <div>
+                    <h1 style="font-size: 3.5rem; margin-bottom: 0.5rem;" class="gradient-text">
+                        {{ club.nom }}
+                    </h1>
+                <div style="display: flex; gap: 1.5rem; color: var(--text-muted); font-weight: 500;">
+                    <span><i class="fas fa-calendar-alt" style="margin-right: 8px; color: var(--emsi-green);"></i> Créé le {{ club.date_creation|date:"d M Y" }}</span>
+                    <span><i class="fas fa-user-tie" style="margin-right: 8px; color: var(--emsi-green);"></i> Responsable: <strong style="color: var(--text-main);">{{ club.responsable.username }}</strong></span>
+                    <span><i class="fas fa-user-group" style="margin-right: 8px; color: var(--emsi-green);"></i> Membres: <strong style="color: var(--text-main);">{{ accepted_members_count }}</strong></span>
+                </div>
+                </div>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                {% if not user.is_authenticated or user.role == 'ETUDIANT' %}
+                    {% if deja_postule %}
+                        <span class="badge badge-acceptee" style="padding: 0.75rem 1.5rem; font-size: 0.95rem;">
+                            <i class="fas fa-check-circle"></i> Candidature envoyée
+                        </span>
+                    {% else %}
+                        <form action="{% url 'apply_to_club' club.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-emsi">
+                                <i class="fas fa-paper-plane" style="margin-right: 10px;"></i> Rejoindre le club
+                            </button>
+                        </form>
+                    {% endif %}
+                {% elif user == club.responsable or user.role == 'ADMIN' %}
+                    <a href="{% url 'manage_adhesions' club.id %}" class="btn-emsi">
+                        <i class="fas fa-users-cog" style="margin-right: 10px;"></i> Gérer les adhésions
+                    </a>
+                    <a href="{% url 'club_members' club.id %}" class="btn-outline">
+                        <i class="fas fa-user-group" style="margin-right: 10px;"></i> Voir les membres
+                    </a>
+                    <a href="{% url 'edit_club' club.id %}" class="btn-outline">
+                        <i class="fas fa-pen" style="margin-right: 10px;"></i> Modifier le club
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="grid-details">
+            <div>
+                <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 12px; font-size: 1.5rem;">
+                    <i class="fas fa-info-circle" style="color: var(--emsi-green);"></i> À propos du club
+                </h3>
+                <div style="line-height: 1.8; color: var(--text-main); font-size: 1.1rem; white-space: pre-line; background: #f8fafc; padding: 2.5rem; border-radius: 20px; border: 1px solid #edf2f7;">
+                    {{ club.description }}
+                </div>
+            </div>
+            
+            <div>
+                <div style="background: white; padding: 2rem; border-radius: 24px; border: 2px solid var(--emsi-light); position: sticky; top: 120px;">
+                    <h4 style="margin-bottom: 2rem; color: var(--text-main); display: flex; align-items: center; gap: 12px; font-size: 1.2rem;">
+                        <i class="fas fa-list-check" style="color: var(--emsi-green);"></i> Conditions d'accès
+                    </h4>
+                    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div style="width: 45px; height: 45px; background: var(--emsi-light); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <i class="fas fa-graduation-cap" style="color: var(--emsi-green);"></i>
+                            </div>
+                            <div>
+                                <small style="display: block; color: var(--text-muted); font-weight: 700; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em;">Filière</small>
+                                <span style="font-weight: 600;">{% if club.cond_filiere %}{{ club.get_cond_filiere_display }}{% else %}Toutes les filières{% endif %}</span>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div style="width: 45px; height: 45px; background: var(--emsi-light); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <i class="fas fa-layer-group" style="color: var(--emsi-green);"></i>
+                            </div>
+                            <div>
+                                <small style="display: block; color: var(--text-muted); font-weight: 700; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em;">Niveau</small>
+                                <span style="font-weight: 600;">
+                                    {% if club.cond_annee_min and club.cond_annee_max %}
+                                        {{ club.cond_annee_min }}e à {{ club.cond_annee_max }}e année
+                                    {% elif club.cond_annee_min %}
+                                        Min. {{ club.cond_annee_min }}e année
+                                    {% elif club.cond_annee_max %}
+                                        Max. {{ club.cond_annee_max }}e année
+                                    {% else %}
+                                        Toutes les années
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div style="width: 45px; height: 45px; background: var(--emsi-light); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <i class="fas fa-birthday-cake" style="color: var(--emsi-green);"></i>
+                            </div>
+                            <div>
+                                <small style="display: block; color: var(--text-muted); font-weight: 700; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em;">Âge</small>
+                                <span style="font-weight: 600;">
+                                    {% if club.cond_age_min and club.cond_age_max %}
+                                        {{ club.cond_age_min }} - {{ club.cond_age_max }} ans
+                                    {% elif club.cond_age_min %}
+                                        {{ club.cond_age_min }} ans +
+                                    {% elif club.cond_age_max %}
+                                        Moins de {{ club.cond_age_max }} ans
+                                    {% else %}
+                                        Ouvert à tous
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if not user.is_authenticated %}
+            <div class="alert alert-info" style="margin-top: 4rem; justify-content: center; padding: 2rem;">
+                <p>Envie de rejoindre <strong>{{ club.nom }}</strong> ? <a href="{% url 'login' %}" style="color: inherit; font-weight: 800;">Connectez-vous</a> pour postuler.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

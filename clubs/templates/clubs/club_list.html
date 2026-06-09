@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Clubs - CampusClubs{% endblock %}
+
+{% block content %}
+<div class="container animate-fade">
+    <div style="text-align: center; margin-bottom: 4rem;">
+        <h1 style="font-size: 3rem; margin-bottom: 1rem;">Nos <span class="gradient-text">Clubs</span></h1>
+        <p style="color: var(--text-muted);">Découvrez l'excellence associative de l'EMSI.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem; margin-bottom: 4rem;">
+        {% for club in clubs %}
+        <div class="card-pro">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
+                {% if club.logo %}
+                    <img src="{{ club.logo.url }}" alt="{{ club.nom }}" style="width: 56px; height: 56px; border-radius: 14px; object-fit: cover; border: 1px solid #dbe7df;">
+                {% else %}
+                    <div style="width: 56px; height: 56px; background: var(--emsi-light); border-radius: 14px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-users" style="color: var(--emsi-green);"></i>
+                    </div>
+                {% endif %}
+                <span class="badge badge-acceptee">Actif</span>
+            </div>
+            <h3 style="margin-bottom: 1rem;">{{ club.nom }}</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem; min-height: 4.5em;">
+                {{ club.description|truncatewords:20 }}
+            </p>
+            <div style="border-top: 1px solid #edf2f7; padding-top: 1.5rem;">
+                <a href="{% url 'club_detail' club.id %}" class="btn-emsi" style="display: block; text-align: center;">Rejoindre le club</a>
+            </div>
+        </div>
+        {% empty %}
+        <div style="grid-column: 1 / -1; text-align: center; padding: 5rem;">
+            <i class="fas fa-search" style="font-size: 3rem; color: #e2e8f0; margin-bottom: 1rem;"></i>
+            <p style="color: var(--text-muted);">Aucun club trouvé pour le moment.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+

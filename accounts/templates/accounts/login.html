@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Connexion - CampusClubs{% endblock %}
+
+{% block content %}
+<div class="container animate-fade">
+    <div style="max-width: 480px; margin: 3rem auto;">
+        <div class="glass-card" style="padding: 3rem;">
+            <div style="text-align: center; margin-bottom: 2.5rem;">
+                <div style="width: 80px; height: 80px; background: var(--emsi-light); border-radius: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                    <i class="fas fa-lock" style="font-size: 2rem; color: var(--emsi-green);"></i>
+                </div>
+                <h2 style="font-size: 2.2rem; margin-bottom: 0.5rem;">Bon <span class="gradient-text">retour !</span></h2>
+                <p style="color: var(--text-muted);">Connectez-vous pour accéder à votre espace.</p>
+            </div>
+            
+            <form method="post">
+                {% csrf_token %}
+                
+                {% if form.errors %}
+                    <div class="alert alert-error">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        {% if form.non_field_errors %}
+                            {{ form.non_field_errors|striptags }}
+                        {% else %}
+                            Identifiants incorrects.
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                <div class="form-group">
+                    <label for="id_username"><i class="fas fa-user" style="margin-right: 8px; color: var(--emsi-green);"></i> Nom d'utilisateur</label>
+                    <input type="text" name="username" class="form-control" id="id_username" required placeholder="Ex: amine_2024">
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 2.5rem;">
+                    <label for="id_password"><i class="fas fa-key" style="margin-right: 8px; color: var(--emsi-green);"></i> Mot de passe</label>
+                    <input type="password" name="password" class="form-control" id="id_password" required placeholder="••••••••">
+                </div>
+                
+                <button type="submit" class="btn-emsi" style="width: 100%; padding: 1.1rem; font-size: 1.1rem;">
+                    Se connecter <i class="fas fa-arrow-right" style="margin-left: 10px;"></i>
+                </button>
+            </form>
+            
+            <div style="text-align: center; margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid #edf2f7;">
+                <p style="color: var(--text-muted); font-size: 0.95rem;">
+                    Pas encore de compte ? <a href="{% url 'register' %}" style="color: var(--emsi-green); font-weight: 700; text-decoration: none;">Créer un compte</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
